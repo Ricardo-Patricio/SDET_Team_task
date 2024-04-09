@@ -38,16 +38,33 @@ def syncFiles(src_path, dst_path, log_path):
             path_file_src = os.path.join(src_path,file)
             path_file_dst = os.path.join(dst_path,file)
             
-            #check if file already exists in replica folder
-            if os.path.exists(path_file_dst):
-                print(f"File {file} has been overwriten from source folder\n")
-                # Write the overwritten message to the log file          
-                log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} has been overwriten from source folder\n")
-            else:
-                shutil.copy(path_file_src,path_file_dst)
-                print(f"File {file} has been created from source folder\n")
-                # Write the creation message to the log file          
-                log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} has been created from source folder\n")  
+            #check if its a file and if it exists in replica folder
+            if os.path.isfile(path_file_src):
+                if os.path.exists(path_file_dst):
+                    shutil.copy(path_file_src,path_file_dst)
+                    print(f"File: {file} has been overwriten\n")
+                    # Write the overwritten message to the log file          
+                    log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} has been overwriten\n")
+                else:
+                    shutil.copy(path_file_src,path_file_dst)
+                    print(f"File: {file} has been created\n")
+                    # Write the creation message to the log file          
+                    log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} has been created\n")
+            
+            #check if its a folder
+            if os.path.isdir(path_file_src):
+                if os.path.exists(path_file_dst):
+                    #if it exists remove the contents of the folder
+                    shutil.rmtree(path_file_dst)
+                    shutil.copytree(path_file_src,path_file_dst)
+                    print(f"Folder: {file} has been overwriten\n")
+                    # Write the overwritten message to the log file          
+                    log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} folder has been overwriten\n")
+                else:
+                    shutil.copytree(path_file_src,path_file_dst)
+                    print(f"Folder: {file} has been created\n")
+                    # Write the overwritten message to the log file          
+                    log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} folder has been overwriten\n")
     
 
 def main():
