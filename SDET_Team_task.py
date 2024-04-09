@@ -1,29 +1,53 @@
 import argparse
 import os
 import datetime
+import shutil
 from pathlib import Path
 from time import sleep
+
 
 def syncFiles(src_path, dst_path, log_path):
 
     #get the file list from source and replica folders
     src_dir = os.listdir(src_path)
     dst_dir = os.listdir(dst_path)
-    
-    #open the log file
+
     with open(log_path, 'a+') as log_file_handle:
-    #remove the obsolete files from replica that dont exist in source folder
+        
+        #remove the obsolete files from replica that dont exist in source folder
         for file in dst_dir:
             path_file_dst = os.path.join(dst_path,file)
             #check if file is not in source folder
             if file not in src_dir:
-                #if its not remove it
-                os.remove(path_file_dst)
-                print("File " + file + " has been removed from replica folder\n")
-                # Write the removal message to the log file
-                log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + ": File " + file + " has been removed from replica folder\n")
+                #check if its a file
+                if os.path.isfile(path_file_dst):
+                    os.remove(path_file_dst)
+                    print(f"File: {file} has been removed from replica folder\n")
+                    # Write the removal message to the log file          
+                    log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + ": File " + file + " has been removed from replica folder\n")
+                
+                #check if its a folder and its not in source folder
+                if os.path.isdir(path_file_dst):
+                    shutil.rmtree(path_file_dst)
+                    print(f"Folder {file} has been removed from replica folder\n")
+                    # Write the removal message to the log file          
+                    log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + ": Folder " + file + " has been removed from replica folder\n")
 
-    return 0
+        #sync the folders
+        for file in src_dir:
+            path_file_src = os.path.join(src_path,file)
+            path_file_dst = os.path.join(dst_path,file)
+            
+            #check if file already exists in replica folder
+            if os.path.exists(path_file_dst):
+                print(f"File {file} has been overwriten from source folder\n")
+                # Write the overwritten message to the log file          
+                log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} has been overwriten from source folder\n")
+            else:
+                shutil.copy(path_file_src,path_file_dst)
+                print(f"File {file} has been created from source folder\n")
+                # Write the creation message to the log file          
+                log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + f" {file} has been created from source folder\n")  
     
 
 def main():
@@ -45,22 +69,24 @@ def main():
     interval = args.interval
     log_path = args.log
 
-    #check if source folders exists
-    if not os.path.exists(src_path):
-        raise FileNotFoundError("The source directory does not exist.") 
-    
-    #check if replica folders exists
-    if not os.path.exists(dst_path):
-        raise FileNotFoundError("The replica directory does not exist.")
-    
+
     #check if log file exists
     if not os.path.exists(log_path):
         #create the file if it does not exist
         print("Log file has been created\n")
         open(log_path, "a+").close()
-    
+
     #call the sync function and with given interval
     while True:
+
+        #check if source folders exists
+        if not os.path.exists(src_path):
+            raise FileNotFoundError("The source directory does not exist.") 
+    
+        #check if replica folders exists
+        if not os.path.exists(dst_path):
+            raise FileNotFoundError("The replica directory does not exist.")
+        
         syncFiles(src_path,dst_path,log_path)
         sleep(interval)
 
