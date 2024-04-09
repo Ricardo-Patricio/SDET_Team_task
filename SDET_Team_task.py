@@ -1,9 +1,28 @@
 import argparse
 import os
+import datetime
 from pathlib import Path
 from time import sleep
 
 def syncFiles(src_path, dst_path, log_path):
+
+    #get the file list from source and replica folders
+    src_dir = os.listdir(src_path)
+    dst_dir = os.listdir(dst_path)
+    
+    #open the log file
+    with open(log_path, 'a+') as log_file_handle:
+    #remove the obsolete files from replica that dont exist in source folder
+        for file in dst_dir:
+            path_file_dst = os.path.join(dst_path,file)
+            #check if file is not in source folder
+            if file not in src_dir:
+                #if its not remove it
+                os.remove(path_file_dst)
+                print("File " + file + " has been removed from replica folder\n")
+                # Write the removal message to the log file
+                log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + ": File " + file + " has been removed from replica folder\n")
+
     return 0
     
 
@@ -37,8 +56,8 @@ def main():
     #check if log file exists
     if not os.path.exists(log_path):
         #create the file if it does not exist
-        print("Log file has been created")
-        open(log_path, "a+")
+        print("Log file has been created\n")
+        open(log_path, "a+").close()
     
     #call the sync function and with given interval
     while True:
