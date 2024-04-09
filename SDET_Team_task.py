@@ -22,14 +22,14 @@ def syncFiles(src_path, dst_path, log_path):
                 #check if its a file
                 if os.path.isfile(path_file_dst):
                     os.remove(path_file_dst)
-                    print(f"File: {file} has been removed from replica folder\n")
+                    print(f"File: {file} has been removed from replicas folder\n")
                     # Write the removal message to the log file          
                     log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + ": File " + file + " has been removed from replica folder\n")
                 
                 #check if its a folder and its not in source folder
                 if os.path.isdir(path_file_dst):
                     shutil.rmtree(path_file_dst)
-                    print(f"Folder {file} has been removed from replica folder\n")
+                    print(f"Folder {file} has been removed from replicas folder\n")
                     # Write the removal message to the log file          
                     log_file_handle.write(datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S") + ": Folder " + file + " has been removed from replica folder\n")
 
