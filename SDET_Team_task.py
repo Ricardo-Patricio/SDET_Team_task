@@ -1,9 +1,11 @@
 import argparse
+import os
 from pathlib import Path
 from time import sleep
 
 def syncFiles(src_path, dst_path, log_path):
     return 0
+    
 
 def main():
     parser = argparse.ArgumentParser(description="Folder sync")
@@ -24,7 +26,21 @@ def main():
     interval = args.interval
     log_path = args.log
 
-    #call the sync function and sleep with interval
+    #check if source folders exists
+    if not os.path.exists(src_path):
+        raise FileNotFoundError("The source directory does not exist.") 
+    
+    #check if replica folders exists
+    if not os.path.exists(dst_path):
+        raise FileNotFoundError("The replica directory does not exist.")
+    
+    #check if log file exists
+    if not os.path.exists(log_path):
+        #create the file if it does not exist
+        print("Log file has been created")
+        open(log_path, "a+")
+    
+    #call the sync function and with given interval
     while True:
         syncFiles(src_path,dst_path,log_path)
         sleep(interval)
